@@ -8,8 +8,8 @@ defmodule Dispell.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      # Starts a worker by calling: Dispell.Worker.start_link(arg)
-      # {Dispell.Worker, arg},
+      # Starts a worker by calling: Bot.start_link(arg)
+      Bot,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

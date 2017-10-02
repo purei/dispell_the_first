@@ -1,7 +1,12 @@
-defmodule Dispell do
+defmodule Commands do
   @moduledoc """
-  Documentation for Dispell.
+  Documentation for Commands.
   """
+  use Alchemy.Cogs
+
+  Cogs.def ping do
+    Cogs.say "pong!"
+  end
 
   @doc """
   Hello world.
@@ -15,4 +20,5 @@ defmodule Dispell do
   def hello do
     :world
   end
+
 end
