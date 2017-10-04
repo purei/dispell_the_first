@@ -21,3 +21,6 @@ erl_crash.dump
 
 # Don't save secrets
 /config/secret.exs
+
+# Don't save database
+/Mnesia.nonode@nohost/

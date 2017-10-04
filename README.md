@@ -1,21 +1,27 @@
 # Dispell
 
-**TODO: Add description**
+### Installation
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `dispell` to your list of dependencies in `mix.exs`:
+[Install Elixir 1.5](https://elixir-lang.org/install.html)
 
 ```elixir
-def deps do
-  [
-    {:dispell, "~> 0.1.0"}
-  ]
-end
+cd dispell
+mix deps.get
+
+# Delete the database anytime you change the schema in Database.ex
+# rm -r Mnesia.nonode@nohost/
+
+# Create a fresh database
+mix amnesia.create -d Database
+
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/dispell](https://hexdocs.pm/dispell).
+### Config for Discord
+[Make config/secret.exs ](https://github.com/purei/dispell/commit/fffae9c0263cda333754ef354d978db066f6074c#diff-d15ef3a32a8374f092d16ea84fdeaad3) and supply Discord App token
 
+### Run Bot in Development
+```elixir
+# Run Dispell in REPL
+iex -S mix
+
+```

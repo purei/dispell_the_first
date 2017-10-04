@@ -23,6 +23,7 @@ defmodule Dispell.Mixfile do
   defp deps do
     [
       {:alchemy, "~> 0.6.0", hex: :discord_alchemy}, # Discord
+      {:amnesia, github: "meh/amnesia", tag: :master}, # custom commands DB
     ]
   end
 end
