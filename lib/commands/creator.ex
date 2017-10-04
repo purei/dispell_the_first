@@ -1,4 +1,4 @@
-defmodule Commands.Creators do
+defmodule Commands.Creator do
   @moduledoc """
   Bot Commands concerned with Listing/Adding/Removing creators.
   """
@@ -56,11 +56,11 @@ defmodule Commands.Creators do
     # Ignore if no Discord user is mentioned
     if Enum.count(message.mentions) > 0 do
       Amnesia.transaction do
-        users = User.where username == message.author.username,
+        users = User.where id == message.author.id,
           select: entry
         # Admin-only
         if users do
-          new_creators = Commands.transaction_bless(message.author, message.mentions)
+          new_creators = transaction_bless(message.author, message.mentions)
           case new_creators do
             [] ->
               Cogs.say "No one was blessed."
@@ -112,8 +112,7 @@ defmodule Commands.Creators do
     # Ignore if no Discord user is mentioned
     if Enum.count(message.mentions) != 0 do
       Amnesia.transaction do
-        users = User.where username == message.author.username,
-          select: entry
+        users = User.where id == message.author.id
         # Admin-only
         if users do
           removed_creators = transaction_unbless(message.author, message.mentions)
