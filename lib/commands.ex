@@ -21,9 +21,9 @@ defmodule Commands do
     response = case cmd do
       "ping" -> "Check if the bot is alive"
       "commands" -> "Shows all available commands"
-      "creators" -> "Shows all usernames that may create"
+      "creators" -> "Shows all creator names"
       "progenitor" -> "If there are no creators, become the first"
-      "bless" -> "(Admin) Mentioned user is allowed to create custom commands: ex. !bless @AEnterprise"
+      "bless" -> "(Admin) Mentioned creator is allowed to create custom commands: ex. !bless @AEnterprise"
       "unbless" -> "(Admin) Mentioned user, if sired by the unblessor, is removed as a creator, ex. !unbless @purei"
       "create" -> "(Admin) Creates a custom command with the given content: ex. !create info Don't do that!"
       "delete" -> "(Admin) Deletes a custom command: ex. !delete info"

@@ -5,14 +5,14 @@ defmodule Commands.Creator do
   use Alchemy.Cogs
   use Amnesia
   use Database
-  alias Database.User
+  alias Database.Creator
 
   @doc """
   Creators replies with the list of creators known to this bot.
   """
   Cogs.def creators do
     Amnesia.transaction do
-      selection = User.where true,
+      selection = Creator.where true,
         select: entry
 
       listing = selection
@@ -29,23 +29,23 @@ defmodule Commands.Creator do
 
   def transaction_bless(creator, mentions) do
     # Get all creators before the blessing
-    creators_before = User.where(true, select: username)
+    users_before = Creator.where(true, select: name)
       |> Amnesia.Selection.values
       |> MapSet.new
 
     # Go through the mentions, and cast bless on each
     # FIXME don't cast; handle reply
     mentions
-    |> Enum.each(&User.bless_user(creator, &1))
+    |> Enum.each(&Creator.bless_user(creator, &1))
 
     # Get mentioned usernames and make them a set
     users_mentioned =
       mentions
-      |> Enum.map(fn(x) -> x.username end)
+      |> Enum.map(fn(discord_user) -> discord_user.username end)
       |> MapSet.new
 
     # Mentioned users that weren't in the original set were newly blessed
-    MapSet.difference(users_mentioned, creators_before)
+    MapSet.difference(users_mentioned, users_before)
     |> MapSet.to_list
   end
 
@@ -56,7 +56,7 @@ defmodule Commands.Creator do
     # Ignore if no Discord user is mentioned
     if Enum.count(message.mentions) > 0 do
       Amnesia.transaction do
-        users = User.where id == message.author.id,
+        users = Creator.where id == message.author.id,
           select: entry
         # Admin-only
         if users do
@@ -77,13 +77,13 @@ defmodule Commands.Creator do
   def transaction_unbless(creator, mentions) do
     # Get all unblessable creators
     unblessables =
-      if User.where parent == creator and entry == creator do
+      if Creator.where parent == creator and entry == creator do
         # If progenitor, you may unbless everyone, including yourself.
         # FIXME make progenitor? fn
-        User.where true
+        Creator.where true
       else
         # Otherwise, you may unbless only those you sired
-        User.where creator == parent
+        Creator.where creator == parent
       end
       |> Amnesia.Selection.values
 
@@ -96,15 +96,15 @@ defmodule Commands.Creator do
     # Go through the unblessed, and cast a delete
     # FIXME don't cast; handle reply
     unblessed
-    |> Enum.each(&User.delete/1)
+    |> Enum.each(&Creator.delete/1)
 
     # Return names of unblessed
     unblessed
-    |> Enum.map(fn(x) -> x.username end)
+    |> Enum.map(fn(creator) -> creator.name end)
   end
 
   @doc """
-  Unbless mentioned users; they are removed as creators.
+  Unbless mentioned creators; they are removed as creators.
   The unblessor may unbless only those that they blessed.
   Progenitor may unbless everyone, including self.
   """
@@ -112,9 +112,9 @@ defmodule Commands.Creator do
     # Ignore if no Discord user is mentioned
     if Enum.count(message.mentions) != 0 do
       Amnesia.transaction do
-        users = User.where id == message.author.id
+        creators = Creator.where id == message.author.id
         # Admin-only
-        if users do
+        if creators do
           removed_creators = transaction_unbless(message.author, message.mentions)
           case removed_creators do
             [] ->
@@ -135,8 +135,8 @@ defmodule Commands.Creator do
   """
   Cogs.def progenitor do
     Amnesia.transaction do
-      if User.count() == 0 do
-        User.bless_user(message.author, message.author)
+      if Creator.count() == 0 do
+        Creator.bless_user(message.author, message.author)
         Cogs.say "You are the beginning."
       else
         Cogs.say "The primogenitor exists."

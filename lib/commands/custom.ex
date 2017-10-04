@@ -16,12 +16,12 @@ defmodule Commands.Custom do
 
   Cogs.def create(cmd, content) do
     Amnesia.transaction do
-      users = User.where id == message.author.id
-      if users do
-        [ admin | _ ] = Amnesia.Selection.values(users)
+      creators = Creator.where id == message.author.id
+      if creators do
+        [ admin | _ ] = Amnesia.Selection.values(creators)
 
         Cogs.say "Creating command '"<>cmd<>"' with "<>content
-        admin |> User.set_command(cmd, content)
+        admin |> Creator.set_command(cmd, content)
       else
         Cogs.say "Only admins may create"
       end
@@ -33,14 +33,10 @@ defmodule Commands.Custom do
   """
   Cogs.def delete(command) do
     Amnesia.transaction do
-      users = User.where id == message.author.id
-      if users do
-        case Command.delete command do
-          :ok ->
-            Cogs.say "Deleted custom command '"<>command<>"'"
-          err ->
-            Cogs.say "Nothing named '"<>command<>"' to delete"
-        end
+      creators = Creator.where id == message.author.id
+      if creators do
+        Command.delete command # no helpful response
+        Cogs.say "If '"<>command<>"' used to exist it doesn't now."
       else
         Cogs.say "Only admins may delete"
       end
@@ -50,18 +46,15 @@ defmodule Commands.Custom do
   @doc """
   Dump (Admin-only) shows the raw content; useful to look at the JSON of an embed
   """
+  Cogs.def dump, do: nil
   Cogs.def dump(command) do
     Amnesia.transaction do
-      users = User.where id == message.author.id
-      if users do
-        cmds = Amnesia.Selection.values(Command.where cmd == command)
-        if cmds do
-          case Enum.fetch cmds, 0 do
-            {:ok, msg} ->
-              Cogs.say msg.content
-            err ->
-              IO.warn err
-          end
+      creators = Creator.where id == message.author.id
+      if creators do
+        contents = Command.where cmd == command, select: content
+        if contents do
+          [content | _] = Amnesia.Selection.values(contents)
+          Cogs.say content
         else
           Cogs.say "Nothing named '"<>command<>"' to dump"
         end
