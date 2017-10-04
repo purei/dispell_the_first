@@ -18,6 +18,7 @@ defmodule Bot do
 
     # Load our commands
     use Commands
+    use Commands.Creators
 
     # Return the client to the supervisor
     run
