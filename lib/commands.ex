@@ -26,8 +26,8 @@ defmodule Commands do
       "commands" -> "Shows all available commands"
       "creators" -> "Shows all creator names"
       "progenitor" -> "If there are no creators, become the first"
-      "search" -> "Search cards for given name; capitalize first letter if you are certain of it: ex. !search steel vs !search Steel"
-      "fuzzy" -> "Return 6 results, closest by the Jaro distance of card name"
+      "search" -> "Search cards for given name: ex. !search steel dragon"
+      "fuzzy" -> "Return 10 results, closest by the Jaro distance of card name"
       "bless" -> "(Admin) Mentioned creator is allowed to create custom commands: ex. !bless @AEnterprise"
       "unbless" -> "(Admin) Mentioned user, if sired by the unblessor, is removed as a creator, ex. !unbless @purei"
       "create" -> "(Admin) Creates a custom command with the given content: ex. !create info Don't do that!"
@@ -64,7 +64,7 @@ defmodule Commands do
   """
   Cogs.set_parser :search, &List.wrap/1 # all words
   Cogs.def search body do
-    map = CardData.search_name(body)
+    map = CardData.search_name(String.downcase(body))
 
     {map, coef} = Enum.fetch!(map, 0)
 
@@ -75,22 +75,27 @@ defmodule Commands do
 
   @doc """
   Fuzzy compares the given text to each card name
-  returns the names of the 6 closest card names by Jaro distance
+  returns the names of the 10 'closest' card names
   """
-  Cogs.set_parser :fuzzy, &List.wrap/1 # &Regex.split(~r/\s+/, &1, [parts: 2])
+  Cogs.set_parser :fuzzy, &List.wrap/1
   Cogs.def fuzzy body do
-    nearby = CardData.search_name(body, 6)
-    |> Enum.map(fn(x) ->
-      map = elem(x, 0)
-      map.name
-    end)
+    entries = CardData.search_name(String.downcase(body), 10)
+
+    nearby = entries
+    |> Enum.map(fn({map,_}) -> map.name end)
     |> Enum.join("\n ")
 
-    Logger.info Kernel.inspect({"fuzzy", message.author.username, body, nearby})
+    log_nearby = entries
+    |> Enum.map(fn({map,val}) -> map.name <> ": " <> Float.to_string(Float.round(val,3)) end)
+    |> Enum.join(" ; ")
+
+    Logger.info Kernel.inspect({"fuzzy", message.author.username, body, log_nearby})
 
     Cogs.say "Possibles for '"<>body<>"':\n " <> nearby
   end
 
+################################################################################
+################################################################################
 
   @hack %{"frostbreath"=>"365880677993807873",
   "fervor"=>"365880678123962368",
