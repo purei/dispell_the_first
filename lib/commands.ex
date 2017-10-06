@@ -7,6 +7,9 @@ defmodule Commands do
   use Amnesia
   use Database
 
+
+
+
   @doc """
   Basic ping response.
   """
@@ -62,7 +65,7 @@ defmodule Commands do
   """
   Cogs.set_parser :search, &List.wrap/1 # all words
   Cogs.def search body do
-    map = CardData.search_name(String.capitalize(body))
+    map = CardData.search_name(body)
     IO.inspect {body, map}
     map
     |> Enum.fetch!(0)
@@ -84,8 +87,60 @@ defmodule Commands do
     Cogs.say "Possibles for '"<>body<>"':\n " <> Enum.join(nearby, "\n ")
   end
 
+
+  @hack %{"frostbreath"=>"365880677993807873",
+  "fervor"=>"365880678123962368",
+  "iceshatter"=>"365880678153322497",
+  "hex"=>"365880678157647874",
+  "heal"=>"365880678161842187",
+  "ignite"=>"365880678170099716",
+  "freeze"=>"365880678279151616",
+  "hinder"=>"365880678375620608",
+  "fury"=>"365880678426083348",
+  "imbue"=>"365880678627278858",
+  "invisibility"=>"365880678690193411",
+  "nullify"=>"365880678711164931",
+  "puncture"=>"365880678719553537",
+  "rejuvenate"=>"365880678803439629",
+  "legion"=>"365880678824411136",
+  "infect"=>"365880678883000320",
+  "mystic_barrier"=>"365880678962954240",
+  "poison_bolt"=>"365880679076200448",
+  "siphon"=>"365880679285653506",
+  "storm_legion"=>"365880679298367489",
+  "shield"=>"365880679357218818",
+  "scorchbreath"=>"365880679357218828",
+  "silence"=>"365880679449362433",
+  "taunt"=>"365880679801683971",
+  "vengeance"=>"365880679818330113",
+  "swiftness"=>"365880679818461196",
+  "valor"=>"365880680066056193",
+  "thornshield"=>"365880680078639124",
+  "venom"=>"365880680372109314",
+  "berserk"=>"365880705739259907",
+  "arcane_shot"=>"365880705852637184",
+  "avian_barrier"=>"365880705986854912",
+  "barrage"=>"365880706062221312",
+  "bind"=>"365880706200633344",
+  "corrupt"=>"365880706221473793",
+  "corrosive"=>"365880706250964993",
+  "burn"=>"365880706410217482",
+  "counterburn"=>"365880706653618176",
+  "dark_hex"=>"365880706880241674",
+  "drain"=>"365880706993487882",
+  "eagle_eye"=>"365880707047751680",
+  "enhance"=>"365880707110928394",
+  "enrage"=>"365880707165192194",
+  "empower"=>"365880707182231552",
+  }
+
   def displaySkill(skill) do
     base = CardData.get_skill(skill.id)
+
+    icon = case base.icon do
+      nil -> "- "
+      _ -> "<:" <> base.icon <> ":" <> @hack[base.icon] <> "> "
+    end
 
     full_name = case skill.all do
       1 -> base.name <> " All"
@@ -109,9 +164,10 @@ defmodule Commands do
         " " <> type.name
     end
 
-    "- " <> full_name <> affinity <> value <> delay
+    icon <> full_name <> affinity <> value <> delay
 
   end
+
 
   def displayCard(map, message) do
     url = "https://cdn.rawgit.com/TheSench/SIMSpellstone/gh-pages/res/cardImages/"
@@ -120,11 +176,15 @@ defmodule Commands do
       t = CardData.get_type(x)
       t.name
     end
-    title = "_" <> map.name <> "_ -- " <> Enum.join(sts, ", ")
+    subtypes = case sts do
+      [] -> ""
+      sts_ -> " -- " <> Enum.join(sts_, ", ")
+    end
+    title = "_" <> map.name <> "_" <> subtypes
     stats =
       "Attack: **" <> Integer.to_string(map.attack) <>
-      "**, Health: **" <> Integer.to_string(map.health) <>
-      "**, Delay: **" <> Integer.to_string(map.delay) <> "**\n"
+      "**\nHealth: **" <> Integer.to_string(map.health) <>
+      "**\nDelay: **" <> Integer.to_string(map.delay) <> "**\n\n"
     color = case map.type do
       1 -> 0x0000FF
       2 -> 0xFF0000
