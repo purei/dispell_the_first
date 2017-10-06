@@ -24,7 +24,8 @@ defmodule Dispell.Mixfile do
     [
       {:alchemy, "~> 0.6.0", hex: :discord_alchemy}, # Discord
       {:amnesia, github: "meh/amnesia", tag: :master}, # custom commands DB
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:spellstone_xml, path: "../spellstone_xml"},
     ]
   end
 end
