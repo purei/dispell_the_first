@@ -223,11 +223,25 @@ defmodule Commands do
     end
     skills_template = Enum.reduce(map.skills, "", fn(x, acc) -> acc <> displaySkill(x) <> "\n" end)
 
+    base_id = rem(map.id, 10000)
+
+    single = CardData.get_card(base_id)
+    dual = CardData.get_card(base_id + 10000)
+    quad = CardData.get_card(base_id + 20000)
+
+    fuses = if dual && quad do
+        "\n" <> if(single.id == map.id, do: "**"<>single.name<>"**", else: single.name) <>
+        " → " <> if(dual.id == map.id, do: "**"<>dual.name<>"**", else: dual.name) <>
+        " → " <> if(quad.id == map.id, do: "**"<>quad.name<>"**", else: quad.name)
+      else
+        ""
+      end
+
     embed =
       %Embed{}
       |> Embed.author(name: map.name, icon_url: assets <> fusion)
       |> Embed.title(title)
-      |> Embed.description(stats<>skills_template)
+      |> Embed.description(stats <> skills_template <> fuses)
       |> Embed.thumbnail(name)
       |> Embed.color(color)
       |> Embed.footer(text: set.name <> " Set")
