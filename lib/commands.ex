@@ -7,8 +7,7 @@ defmodule Commands do
   use Amnesia
   use Database
 
-
-
+  require Logger
 
   @doc """
   Basic ping response.
@@ -66,11 +65,12 @@ defmodule Commands do
   Cogs.set_parser :search, &List.wrap/1 # all words
   Cogs.def search body do
     map = CardData.search_name(body)
-    IO.inspect {body, map}
-    map
-    |> Enum.fetch!(0)
-    |> elem(0)
-    |> displayCard(message)
+
+    {map, coef} = Enum.fetch!(map, 0)
+
+    Logger.info Kernel.inspect({"search", message.author.username, body, map.name, map.id, coef})
+
+    displayCard(map, message)
   end
 
   @doc """
@@ -84,7 +84,11 @@ defmodule Commands do
       map = elem(x, 0)
       map.name
     end)
-    Cogs.say "Possibles for '"<>body<>"':\n " <> Enum.join(nearby, "\n ")
+    |> Enum.join("\n ")
+
+    Logger.info Kernel.inspect({"fuzzy", message.author.username, body, nearby})
+
+    Cogs.say "Possibles for '"<>body<>"':\n " <> nearby
   end
 
 
@@ -172,33 +176,56 @@ defmodule Commands do
   def displayCard(map, message) do
     url = "https://cdn.rawgit.com/TheSench/SIMSpellstone/gh-pages/res/cardImages/"
     name = url<>map.picture<>".jpg"
-    sts = Enum.map map.subtypes, fn(x) ->
-      t = CardData.get_type(x)
-      t.name
-    end
-    subtypes = case sts do
+
+    subtypes_suffix = case map.subtypes do
       [] -> ""
-      sts_ -> " -- " <> Enum.join(sts_, ", ")
+      sts -> " " <> Enum.join(Enum.map(sts, fn(x)->
+        t = CardData.get_type(x)
+        t.name
+      end), ", ")
     end
-    title = "_" <> map.name <> "_" <> subtypes
+
     stats =
       "Attack: **" <> Integer.to_string(map.attack) <>
       "**\nHealth: **" <> Integer.to_string(map.health) <>
-      "**\nDelay: **" <> Integer.to_string(map.delay) <> "**\n\n"
+      "**\nDelay: **" <> Integer.to_string(map.delay) <>
+      "**\n\n"
+
     color = case map.type do
       1 -> 0x0000FF
       2 -> 0xFF0000
       3 -> 0x00FF00
       _ -> 0xAAAAAA
     end
-    finished_template = Enum.reduce(map.skills, stats, fn(x, acc) -> acc <> displaySkill(x) <> "\n" end)
+
+    set = CardData.get_set(map.set)
+
+    rarity = case map.rarity do
+      1 -> "Common"
+      2 -> "Rare"
+      3 -> "Epic"
+      4 -> "Legendary"
+      5 -> "Mystic"
+      _ -> "???"
+    end
+    title = rarity <> subtypes_suffix
+
+    assets = "https://cdn.rawgit.com/TheSench/SIMSpellstone/gh-pages/res/cardAssets/"
+    fusion = case map.id do
+      x when x >= 20000 -> "Quadfuse.png"
+      x when x >= 10000 -> "Dualfuse.png"
+      _ -> "Singlefuse.png"
+    end
+    skills_template = Enum.reduce(map.skills, "", fn(x, acc) -> acc <> displaySkill(x) <> "\n" end)
 
     embed =
       %Embed{}
+      |> Embed.author(name: map.name, icon_url: assets <> fusion)
       |> Embed.title(title)
-      |> Embed.description(finished_template)
+      |> Embed.description(stats<>skills_template)
       |> Embed.thumbnail(name)
       |> Embed.color(color)
+      |> Embed.footer(text: set.name <> " Set")
 
     {:ok, _} = Alchemy.Client.send_message(message.channel_id, nil, [embed: embed])
   end
