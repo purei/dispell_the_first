@@ -7,8 +7,8 @@
 ### Installation
 ```sh
 git clone git@github.com:purei/dispell.git
+git clone git@github.com:purei/spellstone_xml.git
 cd dispell
-mix deps.get
 ```
 
 ### Config for Discord
@@ -16,6 +16,9 @@ mix deps.get
 
 ### Preparing
 ```sh
+# Prepare dependencies
+mix deps.get
+
 # Delete the database anytime you change the schema in Database.ex
 # rm -r Mnesia.nonode@nohost/
 
