@@ -25,17 +25,20 @@ mix deps.get
 # Create a fresh database
 mix amnesia.create -d Database
 
-# Make directory for XML files
-mkdir remote_xml
-
+# Hacky fix for very first time operation.
 # To download the data the first time,
 cd ../spellstone_xml
+mix deps.get
+# Make directory for XML files
+mkdir remote_xml
 # Run the xml app in a REPL
 iex -S mix
 # Download the full library
 iex(1) > Librarian.downloadFullLibrary() # Download all XML data to filesystem
 # Ctrl-c-a to kill REPL
 cd ../dispell
+# Move the data we downloaded to the main app
+mv ../spellstone_xml/remote_xml .
 ```
 
 ### Run Bot in Development
@@ -43,10 +46,11 @@ cd ../dispell
 # Run Dispell in REPL
 iex -S mix
 
-iex(1) > Librarian.downloadFullLibrary() # Download all XML data to filesystem
-# NOTE: Only use if data changes
+# Download new XML data to filesystem
+iex(1) > Librarian.downloadFullLibrary() # NOTE: Only need to use if data changes
 
-iex(2)> recompile() # Recompile changes and hot reload
-# NOTE: If new commands - Cogs.def - are added, data is changed, or mix.exs is changed,
+# If you edit code, Recompile changes and hot reload
+iex(2)> recompile()
+# NOTE: If new commands (Cogs.def) are added, data is changed, or mix.exs is changed,
 # for now: must restart REPL
 ```
