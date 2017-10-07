@@ -6,8 +6,8 @@
 
 ### Installation
 ```sh
-git clone git@github.com:purei/dispell.git
-git clone git@github.com:purei/spellstone_xml.git
+git clone https://github.com/purei/dispell.git
+git clone https://github.com/purei/spellstone_xml.git # Agent that deals w/ card data
 cd dispell
 ```
 
@@ -27,17 +27,26 @@ mix amnesia.create -d Database
 
 # Make directory for XML files
 mkdir remote_xml
+
+# To download the data the first time,
+cd ../spellstone_xml
+# Run the xml app in a REPL
+iex -S mix
+# Download the full library
+iex(1) > Librarian.downloadFullLibrary() # Download all XML data to filesystem
+# Ctrl-c-a to kill REPL
+cd ../dispell
 ```
 
 ### Run Bot in Development
 ```sh
 # Run Dispell in REPL
 iex -S mix
-# Ctrl-c-a to kill REPL
 
 iex(1) > Librarian.downloadFullLibrary() # Download all XML data to filesystem
 # NOTE: Only use if data changes
 
 iex(2)> recompile() # Recompile changes and hot reload
-# NOTE: If new commands - Cogs.def - are added, or mix.exs is changed, must restart REPL
+# NOTE: If new commands - Cogs.def - are added, data is changed, or mix.exs is changed,
+# for now: must restart REPL
 ```
