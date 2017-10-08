@@ -206,14 +206,15 @@ defmodule Commands do
     set = CardData.get_set(map.set)
 
     rarity = case map.rarity do
-      1 -> "Common"
-      2 -> "Rare"
-      3 -> "Epic"
-      4 -> "Legendary"
-      5 -> "Mystic"
-      _ -> "???"
+      1 -> {"Common", "<:Level_1_3:366588508162490369> ", "Level_1_3.png"}
+      2 -> {"Rare", "<:Level_2_4:366588508451766272> ", "Level_2_4.png"}
+      3 -> {"Epic", "<:Level_3_5:366588508346777602> ", "Level_3_5.png"}
+      4 -> {"Legendary", "<:Level_4_6:366588508606955530> ", "Level_4_6.png"}
+      5 -> {"Mystic", "<:Level_5_7:366588508435120129> ", "Level_5_7.png"}
+      _ -> {"???", ""}
     end
-    title = rarity <> subtypes_suffix
+    # title = "**" <> elem(rarity,0) <> subtypes_suffix <> "** " <> elem(rarity,1) <> "\n"
+    title = elem(rarity,0) <> subtypes_suffix
 
     assets = "https://cdn.rawgit.com/TheSench/SIMSpellstone/gh-pages/res/cardAssets/"
     fusion = case map.id do
@@ -229,17 +230,21 @@ defmodule Commands do
     dual = CardData.get_card(base_id + 10000)
     quad = CardData.get_card(base_id + 20000)
 
+    sing_emj = "<:Singlefuse:366599085827948554>"
+    dual_emj = "<:Dualfuse:366599085190414346>"
+    quad_emj = "<:Quadfuse:366599085748125696>"
+
     fuses = if dual && quad do
-        "\n" <> if(single.id == map.id, do: "**"<>single.name<>"**", else: single.name) <>
-        " → " <> if(dual.id == map.id, do: "**"<>dual.name<>"**", else: dual.name) <>
-        " → " <> if(quad.id == map.id, do: "**"<>quad.name<>"**", else: quad.name)
+        "\n" <> if(single.id == map.id, do: sing_emj<>"**"<>single.name<>"**", else: single.name) <>
+        " → " <> if(dual.id == map.id, do: dual_emj<>"**"<>dual.name<>"**", else: dual.name) <>
+        " → " <> if(quad.id == map.id, do: quad_emj<>"**"<>quad.name<>"**", else: quad.name)
       else
         ""
       end
 
     embed =
       %Embed{}
-      |> Embed.author(name: map.name, icon_url: assets <> fusion)
+      |> Embed.author(name: map.name, icon_url: assets <> elem(rarity,2))
       |> Embed.title(title)
       |> Embed.description(stats <> skills_template <> fuses)
       |> Embed.thumbnail(name)
