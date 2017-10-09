@@ -184,7 +184,7 @@ defmodule Commands do
 
     subtypes_suffix = case map.subtypes do
       [] -> ""
-      sts -> " " <> Enum.join(Enum.map(sts, fn(x)->
+      sts -> " — " <> Enum.join(Enum.map(sts, fn(x)->
         t = CardData.get_type(x)
         t.name
       end), ", ")
@@ -204,6 +204,11 @@ defmodule Commands do
     end
 
     set = CardData.get_set(map.set)
+    set_name = case set.name do
+      nil -> ""
+      "" -> ""
+      _ -> " — " <> set.name <> " Set"
+    end
 
     rarity = case map.rarity do
       1 -> {"Common", "<:Level_1_3:366588508162490369> ", "Level_1_3.png"}
@@ -214,14 +219,15 @@ defmodule Commands do
       _ -> {"???", ""}
     end
     # title = "**" <> elem(rarity,0) <> subtypes_suffix <> "** " <> elem(rarity,1) <> "\n"
-    title = elem(rarity,0) <> subtypes_suffix
+
+    title = elem(rarity,0) <> subtypes_suffix <> set_name
 
     assets = "https://cdn.rawgit.com/TheSench/SIMSpellstone/gh-pages/res/cardAssets/"
-    fusion = case map.id do
-      x when x >= 20000 -> "Quadfuse.png"
-      x when x >= 10000 -> "Dualfuse.png"
-      _ -> "Singlefuse.png"
-    end
+    # fusion = case map.id do
+    #   x when x >= 20000 -> "Quadfuse.png"
+    #   x when x >= 10000 -> "Dualfuse.png"
+    #   _ -> "Singlefuse.png"
+    # end
     skills_template = Enum.reduce(map.skills, "", fn(x, acc) -> acc <> displaySkill(x) <> "\n" end)
 
     base_id = rem(map.id, 10000)
@@ -230,14 +236,15 @@ defmodule Commands do
     dual = CardData.get_card(base_id + 10000)
     quad = CardData.get_card(base_id + 20000)
 
-    sing_emj = "<:Singlefuse:366599085827948554>"
-    dual_emj = "<:Dualfuse:366599085190414346>"
-    quad_emj = "<:Quadfuse:366599085748125696>"
+    # sing_emj = "<:Singlefuse:366599085827948554>"
+    # dual_emj = "<:Dualfuse:366599085190414346>"
+    # quad_emj = "<:Quadfuse:366599085748125696>"
 
     fuses = if dual && quad do
-        "\n" <> if(single.id == map.id, do: sing_emj<>"**"<>single.name<>"**", else: single.name) <>
-        " → " <> if(dual.id == map.id, do: dual_emj<>"**"<>dual.name<>"**", else: dual.name) <>
-        " → " <> if(quad.id == map.id, do: quad_emj<>"**"<>quad.name<>"**", else: quad.name)
+        single.name <> " → " <> dual.name <> " → " <> quad.name
+        # "\n" <> if(single.id == map.id, do: sing_emj<>"**"<>single.name<>"**", else: single.name) <>
+        # " → " <> if(dual.id == map.id, do: dual_emj<>"**"<>dual.name<>"**", else: dual.name) <>
+        # " → " <> if(quad.id == map.id, do: quad_emj<>"**"<>quad.name<>"**", else: quad.name)
       else
         ""
       end
@@ -246,10 +253,11 @@ defmodule Commands do
       %Embed{}
       |> Embed.author(name: map.name, icon_url: assets <> elem(rarity,2))
       |> Embed.title(title)
-      |> Embed.description(stats <> skills_template <> fuses)
+      |> Embed.description(stats <> skills_template)
       |> Embed.thumbnail(name)
       |> Embed.color(color)
-      |> Embed.footer(text: set.name <> " Set")
+      # |> Embed.timestamp(DateTime.utc_now())
+      |> Embed.footer(text: fuses)#text: set.name <> " Set")
 
     {:ok, _} = Alchemy.Client.send_message(message.channel_id, nil, [embed: embed])
   end
