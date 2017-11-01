@@ -27,3 +27,6 @@ erl_crash.dump
 
 # Don't save database
 /Mnesia.nonode@nohost/
+
+# Don't save logs
+/logs/

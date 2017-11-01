@@ -26,6 +26,7 @@ defmodule Dispell.Mixfile do
       {:amnesia, github: "meh/amnesia", tag: :master}, # custom commands DB
       {:poison, "~> 3.1"},
       {:spellstone_xml, path: "../spellstone_xml"},
+      {:logger_file_backend, "0.0.10"}
     ]
   end
 end

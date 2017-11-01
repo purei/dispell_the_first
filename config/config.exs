@@ -19,8 +19,12 @@ use Mix.Config
 # You can also configure a 3rd-party app:
 #
 config :logger,
-  backends: [:console], # default, support for additional log sinks
+  backends: [:console, {LoggerFileBackend, :info}], # default, support for additional log sinks
   compile_time_purge_level: :info # purges logs with lower level than this
+
+config :logger, :info,
+  path: "logs/info.log",
+  level: :info
 
 config :spellstone_xml, load: true
 config :spellstone_xml, file_dir: "remote_xml"
